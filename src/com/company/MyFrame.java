@@ -24,24 +24,23 @@ public class MyFrame extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(WIDTH * 2 + 206, HEIGHT + 60 );
         setLayout(null);
-        setLayout(null);
         setVisible(true);
         setResizable(false);
 
-        JLabel label = new JLabel("RGB variations (1 - 256):");
+        JLabel label = new JLabel("RGB variations (0 - 255):");
         label.setBounds(WIDTH + 5, HEIGHT,150, 30);
         label.setForeground(new Color(14,120,100));
         add(label);
 
         RandomPixelCanvas pc = new RandomPixelCanvas(WIDTH, HEIGHT, lambda);
 
-        JSpinner label1 = new JSpinner(new SpinnerNumberModel(pc.rv,1,256, 1));
+        JSpinner label1 = new JSpinner(new SpinnerNumberModel(pc.rv - 1,0,255, 1));
         label1.setBounds(WIDTH + 155, HEIGHT,50, 30);
         add(label1);
-        JSpinner label2 = new JSpinner(new SpinnerNumberModel(pc.gv,1,256, 1));
+        JSpinner label2 = new JSpinner(new SpinnerNumberModel(pc.gv -1,0,255, 1));
         label2.setBounds(WIDTH + 205, HEIGHT,50, 30);
         add(label2);
-        JSpinner label3 = new JSpinner(new SpinnerNumberModel(pc.bv,1,256, 1));
+        JSpinner label3 = new JSpinner(new SpinnerNumberModel(pc.bv - 1,0,255, 1));
         label3.setBounds(WIDTH + 255, HEIGHT ,50, 30);
         add(label3);
 
@@ -57,9 +56,9 @@ public class MyFrame extends JFrame {
             goButton.setEnabled(false);
             saveButton.setEnabled(false);
             pc.baseColor = tcc.getColor();
-            pc.rv = Integer.parseInt(label1.getValue().toString());
-            pc.gv = Integer.parseInt(label2.getValue().toString());
-            pc.bv = Integer.parseInt(label3.getValue().toString());
+            pc.rv = Integer.parseInt(label1.getValue().toString()) + 1;
+            pc.gv = Integer.parseInt(label2.getValue().toString()) + 1;
+            pc.bv = Integer.parseInt(label3.getValue().toString()) + 1;
             setTitle("ColoRandom " + pc.info());
             pc.repaint();
             goButton.setEnabled(true);
@@ -94,5 +93,4 @@ public class MyFrame extends JFrame {
         Locale.setDefault(Locale.ENGLISH);
         new MyFrame();
     }
-
 }
