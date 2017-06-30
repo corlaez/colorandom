@@ -24,14 +24,14 @@ public class LinearRegression {
         for (int i = 10; i < max - 10; i += random.nextInt(5)) {
             points.put(i, 50 + random.nextInt(max) / 5);
         }
-        for (Integer y = points.values().stream().max(Integer::compareTo).get(); y >= 0; y--) {
-            for (int x = 0; x < max; x++) {
-                if (points.get(x).equals(y))
-                    System.out.print("@");
-                else System.out.print("-");
-            }
-            System.out.println();
-        }
+//        for (Integer y = points.values().stream().max(Integer::compareTo).get(); y >= 0; y--) {
+//            for (int x = 0; x < max; x++) {
+//                if (y.equals(points.get(x)))
+//                    System.out.print("@");
+//                else System.out.print("-");
+//            }
+//            System.out.println();
+//        }
     }
 
     public Double getBestFitY(double x) {
@@ -59,7 +59,8 @@ public class LinearRegression {
                 super.paint(g);//white
                 le.printAll(g);//line
                 le.linearRegression();//gradient descent
-                if (iter++ < 1000) repaint();//loop
+                if (iter++ < 100000) repaint();//loop
+                else frame.setTitle("" + Math.round(le.error));
             }
         };
         panel.setBounds(0, 0, 400, 400);
@@ -70,7 +71,6 @@ public class LinearRegression {
         btn.setBounds(0, 0, 100, 20);
         btn.addActionListener(ae -> {
                     panel.repaint();
-                    frame.setTitle("" + le.error);
                 }
         );
         frame.add(btn);
@@ -78,6 +78,7 @@ public class LinearRegression {
 
     private void linearRegression() {
         error = error();
+        double dpm =
         m = random.nextDouble();
         b = random.nextInt(200);
     }
@@ -87,10 +88,10 @@ public class LinearRegression {
                     int px = e.getKey();
                     int py = e.getValue();
                     double fy = getBestFitY(px);
-                    double distance = Math.pow(Math.pow(fy - py, 2), 1);
+                    double distance = Math.pow(fy - py, 2);
                     return distance;
                 }
-        ).reduce(0d, (a, b) -> a + b);
+        ).reduce(0d, (a, b) -> a + b) / points.size();
     }
 
 }
