@@ -50,7 +50,9 @@ public class LinearFunction {
 //        }
     }
 
-    public void linearRegression(Collection<PointS> points) {
+    public double linearRegression(Collection<PointS> points) {
+        if(points.isEmpty())
+            return 0;
         boolean out = false;
         double mGradient = 0;//how much the dependent variable is increasing in ms this direction
         double bGradient = 0;//how much the dependent variable is increasing in bs this direction
@@ -73,12 +75,14 @@ public class LinearFunction {
 //        }
         mGradient = getErrorMsGradient(points);
         bGradient = getErrorBsGradient(points);
-        double mStep = mGamma * mGradient;//0.000008
+        double mStep = mGamma * mGamma * mGamma * mGradient;//0.000008
         double bStep = bGamma * bGradient;//0.5
         double m = getM() - mStep;//minus because we want to minimize
         double b = getB() - bStep;//minus because we want to minimize
         setM(m);
         setB(b);
+
+        return Math.abs(mGradient) + Math.abs(bGradient);
     }
 
     public double getError(Collection<PointS> points) {
@@ -125,18 +129,20 @@ public class LinearFunction {
     public void adjustGamma(Boolean trueMfalseBnullRandom) {
         if(estatico)
             return;
-        if (trueMfalseBnullRandom != null) {
-            if(trueMfalseBnullRandom) mGamma /= 10d;
-            else bGamma /= 10d;
-        }
-        else {
-            if (gturn % 100000 != 0)  {
-                mGamma /= 10d;
-                gturn = 0;
-            }
-            else bGamma /= 10d;
-            gturn++;
-        }
+//        if (trueMfalseBnullRandom != null) {
+//            if(trueMfalseBnullRandom) mGamma /= 10d;
+//            else bGamma /= 10d;
+//        }
+//        else {
+//            if (gturn % 100000 != 0)  {
+//                mGamma /= 10d;
+//                gturn = 0;
+//            }
+//            else bGamma /= 10d;
+//            gturn++;
+//        }
+        mGamma /= 10d;
+        bGamma /= 10d;
         b = 1;
         m = 1;
         System.out.println("amGamma: " + mGamma + "abGamma: " + bGamma + " flag: " + trueMfalseBnullRandom);
@@ -144,6 +150,6 @@ public class LinearFunction {
 
     int gturn = 0;
     boolean estatico = false;
-    double mGamma = 8;//8;
+    double mGamma = 5;//8;
     double bGamma = 5;//500_000;
 }

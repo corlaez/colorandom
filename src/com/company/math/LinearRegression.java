@@ -1,7 +1,4 @@
-package com.company;
-
-import com.company.math.LinearFunction;
-import com.company.math.PointS;
+package com.company.math;
 
 import javax.swing.*;
 import java.awt.Color;
@@ -14,7 +11,7 @@ import java.util.Random;
  * A visual linear regression
  * Created by J Armando Cordova Pelaez on 6/27/2017.
  */
-public class LinearRegression2 {
+public class LinearRegression {
     private static Random random = new Random();
     private static int iter;
     private List<PointS> points = new ArrayList<>();
@@ -26,13 +23,17 @@ public class LinearRegression2 {
         int y400 = line.getIntY(400);
         g.drawLine(0, y0, 400, y400);
         g.setColor(Color.RED);
-        points.forEach(p -> g.drawLine(p.ix, p.iy, p.ix, p.iy));
+        points.forEach(p -> {
+            g.drawLine(p.ix - 1, p.iy - 1, p.ix, p.iy);
+            g.drawLine(p.ix, p.iy - 1, p.ix -1, p.iy);
+        });
     }
 
 
     public static void main(String[] args) {
-        LinearRegression2 le = new LinearRegression2();
+        LinearRegression le = new LinearRegression();
         JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 425);
         frame.setLayout(null);
         JPanel panel = new JPanel() {
@@ -49,11 +50,15 @@ public class LinearRegression2 {
                         le.line.adjustGamma(null);
                     }
                 }
-                if (iter++ < 5000) {//as low as 200 - 250
-                    le.line.linearRegression(le.points);//gradient descent (adjust)
+                if (iter++ < 6000 && iter > 0) {//as low as 200 - 250
+                    double shifts = le.line.linearRegression(le.points);//gradient descent (adjust)
+                    frame.setTitle("Error: " + le.error());
                     le.logInfo();//log
-                    repaint();//loop
-                } else frame.setTitle("Error: " + le.error());
+                    if(shifts <= 0)
+                        iter = -1;
+                    else
+                        repaint();//loop
+                }
             }
         };
         panel.setBackground(Color.WHITE);
@@ -84,9 +89,10 @@ public class LinearRegression2 {
                     for (int i = 10; i < max - 10; i += 5 + random.nextInt(10)) {
                         le.points.add(new PointS(i, 0 + random.nextInt(max) / 5));
                     }
-                    le.line.setM(-1);
-                    le.line.setB(0);
-                    panel.repaint();
+//                    le.line.setM(-1);
+//                    le.line.setB(0);
+//                    panel.repaint();
+                    btn.doClick();
                 }
         );
         frame.add(btn2);
@@ -99,9 +105,10 @@ public class LinearRegression2 {
                     for (int i = 0; i < max; i += 5 + random.nextInt(10)) {
                         le.points.add(new PointS(i, random.nextInt(max)));
                     }
-                    le.line.setB(0);
-                    le.line.setM(1);
-                    panel.repaint();
+//                    le.line.setB(0);
+//                    le.line.setM(1);
+//                    panel.repaint();
+                    btn.doClick();
                 }
         );
         frame.add(btn3);
@@ -112,8 +119,9 @@ public class LinearRegression2 {
     }
 
     private void logInfo() {
-        if (iter % 200 == 0 && iter > 4000)
+        if (iter % 200 == 0 && iter > 4000) {
             System.out.println("At step " + iter + " - Line: y = " + line.getM() + " x + " + line.getB() + " and Error: " + line.getError(points));
+        }
     }
 
 }
