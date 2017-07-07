@@ -2,92 +2,97 @@ package com.company.neuron;
 
 import com.company.math.Matrix;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.DoubleStream;
 
 /**
- * based on pythons perceptron
+ * based on pythons perceptron http://neuralnetworksanddeeplearning.com/chap1.html
  *
- def __init__(self, sizes):
- self.num_layers = len(sizes)
- self.sizes = sizes
- self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
- self.weights = [np.random.randn(y, x)
- for x, y in zip(sizes[:-1], sizes[1:])] *
- * Created by jarma on 7/1/2017.
+ * @Author Armando Cordova
  */
 public class MatrixNN {
-    static Random random = new Random();
+    public final int numberOfInputs;//seed and info
+    public final List<Integer> layerSizes;//seed and info
+    private final List<Matrix> biases;//data
+    private final List<Matrix> weights;//data
 
-    public Integer[] layerSizes;
+    public MatrixNN(Integer... inputSizeAndlayersSizes) {
+        List<Integer> noFirst = new ArrayList(Arrays.asList(inputSizeAndlayersSizes));
+        noFirst.remove(0);
+        List<Integer> noLast = new ArrayList(Arrays.asList(inputSizeAndlayersSizes));
+        noLast.remove(noLast.size() - 1);
+        this.biases = Matrix.listOfGaussianMatrix(noFirst, 1);
+        this.weights = Matrix.listOfGaussianMatrix(noFirst, noLast);
+        this.numberOfInputs = inputSizeAndlayersSizes[0];
+        this.layerSizes = noFirst;
+    }
 
-    private List<Matrix<Double>> biases;
-    private List<Matrix<Double>> weights;
-
-    public MatrixNN(Integer... layerSizes) {
-        this.layerSizes = layerSizes;
-        List<Integer> biasesSizes = new ArrayList(Arrays.asList(layerSizes));
-        biasesSizes.remove(0);
-        List<Integer> weightSizes = new ArrayList(Arrays.asList(layerSizes));
-        weightSizes.remove(weightSizes.size() - 1);
-        biases = Matrix.listOfGaussianMatrix(biasesSizes, 1);
-        weights = Matrix.listOfGaussianMatrix(weightSizes, biasesSizes);
-        System.out.println("biases " + biases.size() + " layer" + (biases.size() > 1 ? "s" : ""));
-        System.out.println(biases);
-        System.out.println("weights " + weights.size() + " layer" + (weights.size() > 1 ? "s" : ""));
-        System.out.println(weights);
+    private Matrix feedforward(Matrix a) {
+        for (int i = 0; i < weights.size(); i++) {
+            Matrix w = weights.get(i);
+            Matrix b = biases.get(i);
+            a = Matrix.dot(w, a).add(b).sigmoid();
+        }
+        return a;
     }
 
     public static void main(String[] args) throws Exception {
-        MatrixNN network = new MatrixNN(1, 3, 2);
-        Thread.sleep(1000);
-        //double bias00 = network.getPerceptronBias(1,1);
-        //System.out.println(bias00);
-        List<Double> weights00 = network.getPerceptronWeights(1,1);
-        System.out.println(weights00);
+        //generate Network
+        MatrixNN net = new MatrixNN(1, 2);
+        //identity training data
+        Map<Matrix, Matrix> trainingData = new HashMap<>();
+        Matrix input = null;
+        Matrix output = null;
+        for (int i = 0; i < 100; i++) {
+            input = Matrix.ofGaussian(1, 1);
+            List<List<Double>> outputValues = new ArrayList<>();
+            outputValues.add(Arrays.asList(input.getRow(0).get(0)));
+            outputValues.add(Arrays.asList(input.getRow(0).get(0)));
+            output = new Matrix(outputValues);
+            trainingData.put(input, output);
+        }
+        //error
+        System.out.print("expected");
+        System.out.println(trainingData.get(input));//expected
+        System.out.print("output");
+        System.out.println(net.feedforward(input));//output
+        System.out.print("output");
+        System.out.println(net.feedforward(input));//output
+        System.out.print("output");
+        System.out.println(net.feedforward(input));//output
+        System.out.print("substract");
+        System.out.println(output.substract(net.feedforward(input)));//output
+        net.error(input, output);//output
+
     }
 
-    private Double getPerceptronBias(int layer, int row){
-        Matrix<Double> biasesOfLayer = getLayer(biases, layer);
-        return biasesOfLayer.get(row, 0);//always one bias per perceptron
-    }
-
-    private List<Double> getPerceptronWeights(int layer, int row){
-        Matrix<Double> weightsOfLayer = getLayer(weights, layer);
-        return weightsOfLayer.getColumn(row);//column or row???
-    }
-
-    private <T> Matrix<T> getLayer(List<Matrix<T>> list, int index){
-        Matrix<T> biasesOfLayer;
-        try {
-            biasesOfLayer = list.get(index);
-        } catch (Exception e){
-            throw new IllegalArgumentException("Invalid layer index. Layers size: " + biases.size());
-        }
-        return biasesOfLayer;
-    }
-
-    class Perceptron {
-        int layer;
-        int row;
-        public Perceptron(int layer, int row){
-            this.layer = layer;
-            this.row = row;
-        }
-        public double getBias(){
-            return getPerceptronBias(layer, row);
-        }
-        public List<Double> getWeigths(){
-            return getPerceptronWeights(layer, row);
-        }
-        @Override
-        public String toString() {
-            return "Perceptron("+ layer +", " + row + "{" +
-                    "bias= " + getBias() +
-                    ", weights= " + getWeigths() +
-                    '}';
-        }
-    }
+    //loss or cost
+    private Matrix error(Matrix input, Matrix expectedOutput) {
+        Matrix errorM;
+        double error = 0;
+        double error2 = 0;
+        int correct = 0;
+        Matrix result = feedforward(input);
+        Matrix diference = expectedOutput.substract(result);
+        /*error += diference.stream()
+                .flatMap(e -> e.stream())
+                .mapToDouble(e -> Math.pow(e, 2))
+                .sum() / diference.size();
+        error2 += diference.stream()
+                .flatMap(e -> e.stream())
+                .mapToDouble(e -> Math.abs(e))
+                .sum() / diference.size();
+        correct += diference.stream()
+                .flatMap(e -> e.stream())
+                .filter(e -> (e > -0.2 && e < 0.2))
+                .mapToInt(e -> 1)
+                .sum();*/
+//        System.out.println("error   "+error);
+//        System.out.println("error2  "+error2);
+//        System.out.println("correct "+correct);
+        System.out.println(diference);
+        System.out.println(expectedOutput);
+        return diference;
+}
 }
