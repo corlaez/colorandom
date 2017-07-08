@@ -116,24 +116,36 @@ public class Matrix{
 
     public Matrix add(Matrix b) {
         if(b.size() != size()) throw new RuntimeException("impossible. Not equal size " + size() + " != " + b.size());
-        for (int i = 0; i < size(); i++) {
-            for (int j = 0; j < getRow(0).size(); j++) {
-                double newVal = getRow(i).get(j) + b.getRow(i).get(0);
-                values.get(i).set(j, newVal);
+        Matrix copy = copy();
+        for (int i = 0; i < copy.size(); i++) {
+            for (int j = 0; j < copy.getRow(0).size(); j++) {
+                double newVal = copy.getRow(i).get(j) + b.getRow(i).get(0);
+                copy.values.get(i).set(j, newVal);
             }
         }
-        return this;
+        return copy;
     }
 
     public Matrix substract(Matrix b) {
         if(b.size() != size()) throw new RuntimeException("impossible. Not equal size " + size() + " != " + b.size());
-        for (int i = 0; i < size(); i++) {
-            for (int j = 0; j < getRow(0).size(); j++) {
-                double newVal = getRow(i).get(j) - b.getRow(i).get(0);
-                values.get(i).set(j, newVal);
+        Matrix copy = copy();
+        for (int i = 0; i < copy.size(); i++) {
+            for (int j = 0; j < copy.getRow(0).size(); j++) {
+                double newVal = copy.getRow(i).get(j) - b.getRow(i).get(0);
+                copy.values.get(i).set(j, newVal);
             }
         }
-        return this;
+        return copy;
+    }
+
+    public Matrix copy() {
+        List<List<Double>> list = new ArrayList<>();
+        for (List<Double> value: values) {
+            List<Double> doubleList = new ArrayList<>();
+            doubleList.addAll(value);
+            list.add(doubleList);
+        }
+        return new Matrix(list);
     }
 
 /*

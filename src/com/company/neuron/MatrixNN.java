@@ -3,8 +3,6 @@ package com.company.neuron;
 import com.company.math.Matrix;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.DoubleStream;
 
 /**
  * based on pythons perceptron http://neuralnetworksanddeeplearning.com/chap1.html
@@ -92,7 +90,6 @@ public class MatrixNN {
 //        System.out.println("error2  "+error2);
 //        System.out.println("correct "+correct);
         System.out.println(diference);
-        System.out.println(expectedOutput);
         return diference;
 }
 }
