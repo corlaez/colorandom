@@ -24,10 +24,10 @@ public class ImageProcess {
 //    img = new ().filter(img, img);
     //apply filters
     if ((f1f2w3c4 & 8) == 8) {
-      img = new InvertFilter().filter(img, img);
+      img = new GrayscaleFilter().filter(img, img);
     }
     if ((f1f2w3c4 & 4) == 4) {
-      img = new GrayscaleFilter().filter(img, img);
+      img = new InvertFilter().filter(img, img);
     }
     //write file
     if ((f1f2w3c4 & 2) == 2) {
@@ -45,7 +45,7 @@ public class ImageProcess {
     ImageLoader loader = new ImageLoader(h, w, ch);
     INDArray arr = loader.asMatrix(img);
     //if Grayscale then simplify matrix
-    if ((f1f2w3c4 & 4) == 4) {
+    if ((f1f2w3c4 & 8) == 8) {
       format = "%-3x";
       INDArray arrR = Nd4j.zeros(h, w);
       for (int i = 0; i < arr.rows(); i++) {
@@ -88,10 +88,10 @@ public class ImageProcess {
     String[] pngs = new String[]{"kathehermosa.jpg", "llamamini.png", "5_28_28.png"};
 //    pngs = new String[0];
 //    pngs = new String[]{"5_28_28.png"};
-    pngs = new String[]{"katheg.jpg"};
+    pngs = new String[]{"fire.jpg"};
 //    pngs = new String[]{"5_28_28.png", "64.png", "16.png"};
     for (String s : pngs) {
-      invGrayReducePrint(pathname + s.split("\\.")[0], s.split("\\.")[1], 0b1111);
+      invGrayReducePrint(pathname + s.split("\\.")[0], s.split("\\.")[1], 0b1010);
       System.out.println();
     }
     for (int i = 10; i < 10 ; i++) {
