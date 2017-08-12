@@ -1,94 +1,103 @@
 package com.company.nd;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.function.UnaryOperator;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.rng.distribution.impl.NormalDistribution;
 import org.nd4j.linalg.factory.Nd4j;
+
+import static org.nd4j.linalg.ops.transforms.Transforms.*;
 
 /**
  * Created by jarma on 8/9/2017.
  */
 public class NDLayer {
-  int index = -1;
-  List<INDArray> weights;//should i use neurons here?
-  List<INDArray> biases;
 
-  public NDLayer(int numberOfWeightsPerNeuron, int numberOfNeurons){
-    weights = new ArrayList<>();
-    biases = new ArrayList<>();
-    for (int i = 0; i < numberOfNeurons; i++) {
-      weights.add(Nd4j.rand(new int[] {numberOfWeightsPerNeuron, 1}));
-      biases.add(Nd4j.rand(new int[] {1, 1}));
-    }
-    if(weights.size() != biases.size()){
-      throw new RuntimeException("W != B");
-    }
+  int index = -1;
+  int nWeightsPerNeuron;
+  int nNeurons;
+  INDArray weights;
+  INDArray biases;
+  UnaryOperator<INDArray> activationFunction;
+
+  public NDLayer(int nWeightsPerNeuron, int nNeurons) {
+    this.nNeurons = nNeurons;
+    this.nWeightsPerNeuron = nWeightsPerNeuron;
+    weights = Nd4j.rand(new int[]{nNeurons, nWeightsPerNeuron}, new NormalDistribution());
+    biases = Nd4j.rand(new int[]{nNeurons, 1}, new NormalDistribution());
+    setActivationName(null);
   }
 
-  public NDLayer(int index, int numberOfWeightsPerNeuron, int numberOfNeurons){
+  public NDLayer(int index, int numberOfWeightsPerNeuron, int numberOfNeurons) {
     this(numberOfWeightsPerNeuron, numberOfNeurons);
     this.index = index;
   }
 
-  public static List<NDLayer> newfullyConnected(int ... inputSizeAndlayersSizes){
-    List<NDLayer> list = new ArrayList<>();
-    for (int i = 1; i < inputSizeAndlayersSizes.length; i++) {
-      int numberOfWeightsPerNeuron = inputSizeAndlayersSizes[i-1];
-      int numberOfNeurons = inputSizeAndlayersSizes[i];
-      list.add(new NDLayer(i-1, numberOfWeightsPerNeuron, numberOfNeurons));
-    }
-    return list;
+  public INDArray activate(INDArray input) {
+    INDArray output = weights.mmul(input).add(biases);
+    output = activationFunction.apply(output);
+    return output;
   }
 
-  public List<INDArray> activate(List<INDArray> input){
-    System.out.println(input);
-    System.out.println(this);
-    List<INDArray> output = new ArrayList<>();
-    for (int i = 0; i < weights.size(); i++) {
-      INDArray w = weights.get(i);
-      INDArray b = biases.get(i);
-      INDArray r = w.mmul(input.get(i))
-          .add(b);
-      output.add(r);
+  public int getnNeurons() {
+    int r = weights.size(0);
+    if (r != nNeurons) {
+      throw new RuntimeException("NEURONS NUMBER IS WRONG: " + r + " != " + nNeurons);
     }
-    return input;
+    return r;
   }
 
-  public int size() {
-    return biases.size();
+  public int getnWeigthsPerNeuron() {
+    int r = weights.getRow(0).length();
+    if (r != nWeightsPerNeuron) {
+      throw new RuntimeException("WPN NUMBER IS WRONG: " + r + " != " + nWeightsPerNeuron);
+    }
+    return r;
+  }
+
+  public void setActivationName(String activationNameP) {
+    if (activationNameP == null) {
+      activationFunction = x -> sigmoid(x);
+      return;
+    }
+    activationFunction = x -> Nd4j.getExecutioner().exec(
+        Nd4j.getOpFactory().createTransform(activationNameP, x)).z();
   }
 
   @Override
   public String toString() {
-    String s = "Layer"+ (index > -1 ? " " +index : "") +":\n";
-    for (int i = 0; i < weights.size(); i++) {
-      s += "Neuron " + i + ": Weights " + weights.get(i) + ", bias " + biases.get(i).toString() + "\n";
+    String s = "Layer" + (index > -1 ? " " + index : "") + ":\n";
+    for (int i = 0; i < nNeurons; i++) {
+      s += "Neuron " + i + ": Weights " + weights.getRow(i) +
+          ", bias " + biases.getRow(i) + "\n";
     }
     return s;
   }
 
   public String toStringShort() {
-    String s = "Layer"+ (index > -1 ? " " +index : "") +":\n";
-    for (int i = 0; i < weights.size(); i++) {
-      s += "N" + i + "(" + weights.get(i).length() + ", " + biases.get(i).toString() + ")\n";
+    String s = "Layer" + (index > -1 ? " " + index : "") + ":\n";
+    for (int i = 0; i < nNeurons; i++) {
+      s += "N" + i + "(" + nWeightsPerNeuron + ", " + biases.getRow(i) + ")\n";
     }
     return s;
   }
 
   public String toStringShortest() {
-    String s = "Layer"+ (index > -1 ? " " +index : "") +":\n";
-    for (int i = 0; i < weights.size(); i++) {
-      s += "N" + i + "(" + weights.get(i).length() + ")\n";
+    String s = "Layer" + (index > -1 ? " " + index : "") + ":\n";
+    for (int i = 0; i < nNeurons; i++) {
+      s += "N" + i + "(" + nWeightsPerNeuron + ")\n";
     }
     return s;
   }
 
+  public String toStringMini() {
+    String s = "Layer" + (index > -1 ? " " + index : "") + "(ns: ";
+    s += nNeurons + ", ws: " + nWeightsPerNeuron + ")";
+    return s;
+  }
+
   public static void main(String[] args) {
-    NDLayer layer = new NDLayer(2,5);
-//    System.out.println(layer);
-//    System.out.println(layer.toStringShort());
-//    System.out.println(layer.toStringShortest());
-    System.out.println(layer.activate(Arrays.asList(Nd4j.scalar(0.1),Nd4j.scalar(0.8))));
+    NDLayer layer = new NDLayer(20, 2);
+    INDArray input = Nd4j.rand(new int[]{20, 1}, new NormalDistribution());
+    System.out.println(layer.activate(input));
   }
 }
