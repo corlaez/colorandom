@@ -1,8 +1,6 @@
 package com.company.nd;
 
-import static org.nd4j.linalg.ops.transforms.Transforms.abs;
-import static org.nd4j.linalg.ops.transforms.Transforms.pow;
-import static org.nd4j.linalg.ops.transforms.Transforms.sqrt;
+import static org.nd4j.linalg.ops.transforms.Transforms.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +13,6 @@ import org.nd4j.linalg.factory.Nd4j;
  * Created by jarma on 8/8/2017.
  */
 public class NDNetwork {
-
   List<NDLayer> layers;
 
   public NDNetwork(int... inputSizeAndlayersSizes) {
@@ -76,25 +73,23 @@ public class NDNetwork {
         .replaceAll("]]", "]\n]");
   }
 
+  public String toStringLong() {
+    List<List<String>> ls = layers
+        .stream()
+        .map(l -> l.toString().split("\n"))
+        .map(Arrays::asList)
+        .collect(Collectors.toList());
+    return "Network:\n" + ls.toString()
+        .replaceAll("\\[L", "\n\\[L")
+        .replaceAll("]]", "]\n]");
+  }
+
   public static void main(String[] args) {//x -> w + b = y
-    NDNetwork net = new NDNetwork(2, 2, 2);
-//    INDArray inputs = Nd4j.create(new float[]{1f, 1f}, new int[]{2,1});
-//    INDArray x = net.feedforward(inputs);
-    float y = net.error(
-        Nd4j.create(new float[]{1f, 1f}, new int[]{2,1}),//input
-        Nd4j.create(new float[]{1f, 1f}, new int[]{2,1}));//output
-    System.out.println(y);
-
-    net.layers.forEach(l -> l.setActivationName("relu"));
-    y = net.error(
-        Nd4j.create(new float[]{1f, 1f}, new int[]{2,1}),//input
-        Nd4j.create(new float[]{1f, 1f}, new int[]{2,1}));//output
-    System.out.println(y);
-
-    net.layers.forEach(l -> l.setActivationName("sigmoid"));
-    y = net.error(
-        Nd4j.create(new float[]{1f, 1f}, new int[]{2,1}),//input
-        Nd4j.create(new float[]{1f, 1f}, new int[]{2,1}));//output
-    System.out.println(y);
+    NDNetwork net = new NDNetwork(2, 5, 3, 2);
+    INDArray x = Nd4j.create(new float[]{1f, 1f}, new int[]{2,1});
+    System.out.println(net.toStringLong());
+    System.out.println(x);
+    System.out.println(net.feedforward(x));
+    System.out.println(net.error(x, x));
   }
 }

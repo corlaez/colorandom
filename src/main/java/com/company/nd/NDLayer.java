@@ -2,7 +2,6 @@ package com.company.nd;
 
 import java.util.function.UnaryOperator;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.rng.distribution.impl.NormalDistribution;
 import org.nd4j.linalg.factory.Nd4j;
 
 import static org.nd4j.linalg.ops.transforms.Transforms.*;
@@ -11,6 +10,8 @@ import static org.nd4j.linalg.ops.transforms.Transforms.*;
  * Created by jarma on 8/9/2017.
  */
 public class NDLayer {
+
+  public static boolean debug;
 
   int index = -1;
   int nWeightsPerNeuron;
@@ -22,8 +23,13 @@ public class NDLayer {
   public NDLayer(int nWeightsPerNeuron, int nNeurons) {
     this.nNeurons = nNeurons;
     this.nWeightsPerNeuron = nWeightsPerNeuron;
-    weights = Nd4j.rand(new int[]{nNeurons, nWeightsPerNeuron}, new NormalDistribution());
-    biases = Nd4j.rand(new int[]{nNeurons, 1}, new NormalDistribution());
+    if (debug) {
+      weights = Nd4j.randn(new int[]{nNeurons, nWeightsPerNeuron},12356L);
+      biases = Nd4j.randn(new int[]{nNeurons, 1}, 551615L);
+    } else {
+      weights = Nd4j.randn(new int[]{nNeurons, nWeightsPerNeuron});
+      biases = Nd4j.randn(new int[]{nNeurons, 1});
+    }
     setActivationName(null);
   }
 
@@ -67,8 +73,8 @@ public class NDLayer {
   public String toString() {
     String s = "Layer" + (index > -1 ? " " + index : "") + ":\n";
     for (int i = 0; i < nNeurons; i++) {
-      s += "Neuron " + i + ": Weights " + weights.getRow(i) +
-          ", bias " + biases.getRow(i) + "\n";
+      s += "N" + i + ": w " + weights.getRow(i) +
+          ", b " + biases.getRow(i) + "\n";
     }
     return s;
   }
@@ -96,8 +102,10 @@ public class NDLayer {
   }
 
   public static void main(String[] args) {
-    NDLayer layer = new NDLayer(20, 2);
-    INDArray input = Nd4j.rand(new int[]{20, 1}, new NormalDistribution());
+    NDLayer.debug = true;
+    NDLayer layer = new NDLayer(5, 3);
+    System.out.println(layer);
+    INDArray input = Nd4j.randn(new int[]{5, 1}, 1L);
     System.out.println(layer.activate(input));
   }
 }
