@@ -5,6 +5,8 @@ import com.jhlabs.image.InvertFilter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import javax.imageio.ImageIO;
 import org.datavec.image.loader.ImageLoader;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -66,6 +68,20 @@ public class ImageProcess {
       printf(arr, format);
     }
     return arr;
+  }
+
+  static INDArray loadGrayscale(String pathname, String s) throws Exception {
+    return invGrayReducePrint(pathname + s.split("\\.")[0], s.split("\\.")[1], 0b1010);
+  }
+
+  static List<INDArray> loadGrayscale(String pathname) throws Exception {
+    List<INDArray> list = new ArrayList<>();
+    for (File file :new File(pathname).listFiles()) {
+      String s = file.getName();
+      INDArray x = invGrayReducePrint(pathname + s.split("\\.")[0], s.split("\\.")[1], 0b1010);
+      list.add(x);
+    }
+    return list;
   }
 
   private static void printf(INDArray arr, String format) {
