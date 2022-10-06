@@ -12,35 +12,35 @@ import java.util.Locale;
  * GUI for the canvas, adding buttons to regenerate and save and parameter inputs.
  * Created by  Armando Cordova Pelaez on 6/27/2017.
  */
-public class MyFrame extends JFrame {
+public class MyFrame2 extends JFrame {
     private JFileChooser fc = new JFileChooser();
     private JButton goButton = new JButton("GENERATE");
     private JButton saveButton = new JButton("SAVE");
     private Runnable lambda = () -> { goButton.repaint(); saveButton.repaint(); };
-    private static int WIDTH = 400;
+    private static int WIDTH = 800;
     private static int HEIGHT = 400;
 
-    private MyFrame() {
+    private MyFrame2() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(WIDTH * 2 + 206, HEIGHT + 80 );
+        setSize(WIDTH + 630, HEIGHT + 70 );
         setLayout(null);
         setVisible(true);
         setResizable(true);
 
         JLabel label = new JLabel("RGB variations (0 - 255):");
         label.setBounds(WIDTH + 5, HEIGHT,150, 30);
-        label.setForeground(new Color(14,120,100));
+        label.setForeground(new Color(69, 14, 120));
         add(label);
 
         RandomPixelCanvas pc = new RandomPixelCanvas(WIDTH, HEIGHT, lambda);
 
-        JSpinner label1 = new JSpinner(new SpinnerNumberModel(pc.rv - 1,0,255, 1));
+        JSpinner label1 = new JSpinner(new SpinnerNumberModel(pc.rv,0,255, 1));
         label1.setBounds(WIDTH + 155, HEIGHT,50, 30);
         add(label1);
-        JSpinner label2 = new JSpinner(new SpinnerNumberModel(pc.gv -1,0,255, 1));
+        JSpinner label2 = new JSpinner(new SpinnerNumberModel(pc.gv,0,255, 1));
         label2.setBounds(WIDTH + 205, HEIGHT,50, 30);
         add(label2);
-        JSpinner label3 = new JSpinner(new SpinnerNumberModel(pc.bv - 1,0,255, 1));
+        JSpinner label3 = new JSpinner(new SpinnerNumberModel(pc.bv,0,255, 1));
         label3.setBounds(WIDTH + 255, HEIGHT ,50, 30);
         add(label3);
 
@@ -48,7 +48,7 @@ public class MyFrame extends JFrame {
         add(pc);
 
         JColorChooser tcc = new JColorChooser(pc.baseColor);
-        tcc.setBounds(WIDTH + 5,0,WIDTH + 50 + 140, HEIGHT);
+        tcc.setBounds(WIDTH + 5,0,600, HEIGHT);
         add(tcc);
 
         goButton.setBounds(0,HEIGHT,WIDTH / 2,30);
@@ -91,6 +91,6 @@ public class MyFrame extends JFrame {
 
     public static void main(String[] args) {
         Locale.setDefault(Locale.ENGLISH);
-        new MyFrame();
+        new MyFrame2();
     }
 }
